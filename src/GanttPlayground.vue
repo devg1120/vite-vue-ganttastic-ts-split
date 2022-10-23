@@ -1,0 +1,409 @@
+<template>
+  <g-gantt-chart
+    v-bind:chart-start="chartStart"
+    v-bind:chart-end="chartEnd"
+    precision="day"
+    :row-height="40"
+    grid
+    width="100%"
+    bar-start="beginDate"
+    bar-end="endDate"
+    :date-format="format"
+    @click-bar="onClickBar($event.bar, $event.e, $event.datetime)"
+    @mousedown-bar="onMousedownBar($event.bar, $event.e, $event.datetime)"
+    @dblclick-bar="onMouseupBar($event.bar, $event.e, $event.datetime)"
+    @mouseenter-bar="onMouseenterBar($event.bar, $event.e)"
+    @mouseleave-bar="onMouseleaveBar($event.bar, $event.e)"
+    @dragstart-bar="onDragstartBar($event.bar, $event.e)"
+    @drag-bar="onDragBar($event.bar, $event.e)"
+    @dragend-bar="onDragendBar($event.bar, $event.e, $event.movedBars)"
+    @contextmenu-bar="onContextmenuBar($event.bar, $event.e, $event.datetime)"
+      @mousedown="touchStart($event)"
+      @mousemove="touchMove($event)"
+      @mouseup="touchEnd($event)"
+      @wheel="mousewheel($event)"
+  >
+<!--
+    <g-gantt-row
+      label="My row 1"
+      :bars="bars1"
+      highlight-on-hover
+    />
+    <g-gantt-row
+      label="My row 2"
+      highlight-on-hover
+      :bars="bars2"
+    />
+-->
+
+    <g-gantt-row
+          v-for="{label, bars} in task_list_.slice(row_index_start, row_index_end)"
+              :label="label"
+              highlight-on-hover
+              :bars="bars"
+
+    />
+
+  </g-gantt-chart>
+
+  <button @click="addBar()">
+    Add bar
+  </button>
+  <button @click="deleteBar()">
+    Delete bar
+  </button>
+
+  <button @click="shiftLeft()">
+   ←  
+  </button>
+  <button @click="shiftRight()">
+   →
+  </button>
+  <button @click="shiftUp()">
+   ↑
+  </button>
+  <button @click="shiftDown()">
+   ↓
+  </button>
+
+</template>
+
+<script setup lang="ts">
+import { ref } from "vue"
+import GGanttRow from "./components/GGanttRow.vue"
+import GGanttChart from "./components/GGanttChart.vue"
+import { GanttBarObject } from "./models/models"
+import dayjs from 'dayjs';
+//import { objData } from "./jsondata.js"
+import { objData } from "./gendata/jsondata.js"
+
+console.log(objData);
+
+//const format = ref("DD.MM.YYYY HH:mm")
+//const chartStart = ref("01.01.2021 12:00")
+//const chartEnd = ref("15.07.2021 12:00")
+const format = ref("YYYY/MM/DD HH:mm")
+//const chartStart = ref("2021/01/01 12:00")
+const chartStart = ref("2021/06/10 12:00")  //error duplicate
+//const chartStart = ref("2021/07/01 12:00") // ok
+const chartEnd   = ref("2021/07/15 12:00")
+//let chartStart = ref("2021/05/31 12:00")
+//let  chartEnd   = ref("2021/07/14 12:00")
+
+let _start = 4
+let _end   = 10
+const row_index_start = ref(_start)
+const row_index_end = ref(_end)
+/*
+ //const element = document.getElementById("circle");
+ let element = ""
+
+  let currentAnimation;
+
+  function move(transformStart, transformEnd) {
+    currentAnimation = element.animate(
+      [{ transform: transformStart }, { transform: transformEnd }],
+      {
+        duration: 1000,
+        easing: "linear",
+        fill: "forwards",
+      }
+    );
+  }
+  */
+/*
+const bars1 = ref([
+  {
+    beginDate: "2021/04/24 13:00",
+    endDate: "2021/05/25 19:00",
+    ganttBarConfig: {
+      id: "8621987329",
+      label: "I'm in a bundle",
+      bundle: "bundle2"
+    }
+  }
+])
+
+const bars2 = ref([
+  {
+    beginDate: "2021/04/24 13:00",
+    endDate: "2021/05/25 19:00",
+    ganttBarConfig: {
+      id: "1592311887",
+      label: "I'm in a bundle",
+      bundle: "bundle2",
+      style: {
+        background: "magenta"
+      }
+    }
+  },
+  {
+    beginDate: "2021/01/01 00:00",
+    endDate: "2021/04/01 00:00",
+    ganttBarConfig: {
+      id: "7716981641",
+      label: "Lorem ipsum dolor",
+      hasHandles: true,
+      style: {
+        background: "#b74b52"
+      }
+    }
+  },
+  {
+    beginDate: "2021/06/15 00:00",
+    endDate: "2021/07/10 00:00",
+    ganttBarConfig: {
+      id: "9716981641",
+      label: "Oh hey",
+      style: {
+        background: "#69e064",
+        borderRadius: "15px",
+        color: "blue",
+        fontSize: "10px"
+      }
+    }
+  }
+]);
+*/
+
+const bars1_ = [
+  {
+    beginDate: "2021/04/24 13:00",
+    endDate: "2021/05/25 19:00",
+    ganttBarConfig: {
+      id: "8621987329",
+      label: "I'm in a bundle",
+      bundle: "bundle2"
+    }
+  }
+]
+
+const bars2_ = [
+  {
+    beginDate: "2021/04/24 13:00",
+    endDate: "2021/05/25 19:00",
+    ganttBarConfig: {
+      id: "1592311887",
+      label: "I'm in a bundle",
+      bundle: "bundle2",
+      style: {
+        background: "magenta"
+      }
+    }
+  },
+  {
+    beginDate: "2021/01/01 00:00",
+    endDate: "2021/04/01 00:00",
+    ganttBarConfig: {
+      id: "7716981641",
+      label: "Lorem ipsum dolor",
+      hasHandles: true,
+      style: {
+        background: "#b74b52"
+      }
+    }
+  },
+  {
+    beginDate: "2021/06/15 00:00",
+    endDate: "2021/07/10 00:00",
+    ganttBarConfig: {
+      id: "9716981641",
+      label: "Oh hey",
+      style: {
+        background: "#69e064",
+        borderRadius: "15px",
+        color: "blue",
+        fontSize: "10px"
+      }
+    }
+  }
+];
+
+const bars3_ = [
+  {
+    beginDate: "2021/06/25 13:00",
+    endDate: "2021/07/01 19:00",
+    ganttBarConfig: {
+      id: "1592311899",
+      label: "I'm in a TEST",
+      style: {
+        background: "red"
+      }
+    }
+  }
+];
+
+let task_list:{ [key: string]: any; }  = new Array()
+let task_list_ = ref(task_list)
+
+
+objData.forEach((elem, index) => {
+    console.log(elem);
+    task_list.push(elem)
+});
+task_list.push( {
+    label : "My row 01",
+    bars  : bars1_
+}
+);
+
+task_list.push( {
+    label : "My row 02",
+    bars  : bars2_
+}
+);
+
+task_list.push( {
+    label : "My row 03",
+    bars  : bars3_
+}
+);
+
+const shiftLeft = () => {
+  console.log("shiftLeft")
+ //chartStart = ref("2021/05/31 12:00")
+ //chartEnd   = ref("2021/07/14 12:00")
+ //chartStart.value = "2021/05/31 12:00"
+ //chartEnd.value   = "2021/07/14 12:00"
+ //element = document.querySelector("#g-gantt-chart");
+
+ const start = dayjs(chartStart.value ).subtract(1,"d")
+ const end   = dayjs(chartEnd.value ).subtract(1,"d")
+ chartStart.value = dayjs(start).format('YYYY/MM/DD HH:mm')
+ chartEnd.value   = dayjs(end).format('YYYY/MM/DD HH:mm')
+ console.log(chartStart.value)
+ console.log(chartEnd.value)
+ // move("translateX(100px)", "translateX(0)");
+
+ 
+}
+
+const shiftRight = () => {
+ //element = document.querySelector("#g-gantt-chart");
+ //move("translateX(0)", "translateX(100px)");
+  console.log("shiftRight")
+ //chartStart = ref("2021/06/02 12:00")
+ //chartEnd   = ref("2021/07/16 12:00")
+ const start = dayjs(chartStart.value ).add(1,"d")
+ const end   = dayjs(chartEnd.value ).add(1,"d")
+ chartStart.value = dayjs(start).format('YYYY/MM/DD HH:mm')
+ chartEnd.value   = dayjs(end).format('YYYY/MM/DD HH:mm')
+ console.log(chartStart.value)
+ console.log(chartEnd.value)
+ //move("translateX(0)", "translateX(100px)");
+
+}
+
+const shiftUp = () => {
+     row_index_start.value -= 1
+     row_index_end.value -= 1
+}
+const shiftDown = () => {
+     row_index_start.value += 1
+     row_index_end.value += 1
+}
+
+const addBar = () => {
+  //if (bars1.value.some(bar => bar.ganttBarConfig.id === "test1")) {
+  //  return
+  //}
+  const bar = {
+    //beginDate: "26.02.2021 00:00",
+    //endDate: "26.03.2021 02:00",
+    beginDate: "2021/06/30 00:00",
+    endDate: "2021/07/10 02:00",
+    ganttBarConfig: {
+      id: "test1",
+      hasHandles: true,
+      label: "Hello!",
+      style: {
+        background: "#5484b7",
+        borderRadius: "20px"
+      }
+    }
+  }
+  //bars1.value.push(bar)
+  task_list_.value[0].bars.push(bar)
+}
+
+const deleteBar = () => {
+  const idx = bars1.value.findIndex(b => b.ganttBarConfig.id === "test1")
+  if (idx !== -1) {
+    bars1.value.splice(idx, 1)
+  }
+}
+
+const onClickBar = (bar: GanttBarObject, e:MouseEvent, datetime?: string) => {
+  console.log("click-bar", bar, e, datetime)
+}
+
+const onMousedownBar = (bar: GanttBarObject, e:MouseEvent, datetime?: string) => {
+  console.log("mousedown-bar", bar, e, datetime)
+}
+
+const onMouseupBar = (bar: GanttBarObject, e:MouseEvent, datetime?: string) => {
+  console.log("mouseup-bar", bar, e, datetime)
+}
+
+const onMouseenterBar = (bar: GanttBarObject, e:MouseEvent) => {
+  console.log("mouseenter-bar", bar, e)
+}
+
+const onMouseleaveBar = (bar: GanttBarObject, e:MouseEvent) => {
+  console.log("mouseleave-bar", bar, e)
+}
+
+const onDragstartBar = (bar: GanttBarObject, e:MouseEvent) => {
+  console.log("dragstart-bar", bar, e)
+}
+
+const onDragBar = (bar: GanttBarObject, e:MouseEvent) => {
+  console.log("drag-bar", bar, e)
+}
+
+const onDragendBar = (bar: GanttBarObject, e:MouseEvent, movedBars?: Map<GanttBarObject, {oldStart: string, oldEnd: string}>) => {
+  console.log("dragend-bar", bar, e, movedBars)
+}
+
+const onContextmenuBar = (bar: GanttBarObject, e:MouseEvent, datetime?: string) => {
+  console.log("contextmenu-bar", bar, e, datetime)
+}
+
+let drag:boolean = false;
+let drag_offsetX:int = 0;
+
+const touchStart = (e:Event) => {
+  drag = true
+  drag_offsetX = e.offsetX
+
+  //console.log("touchStart")
+  //console.log(e)
+}
+const touchMove = (e:Event) => {
+  if (drag) {
+    //let z = e.offsetX - drag_offsetX 
+    let z = (drag_offsetX  - e.offsetX) 
+    const start = dayjs(chartStart.value ).add(z,"h")
+    const end   = dayjs(chartEnd.value ).add(z,"h")
+    chartStart.value = dayjs(start).format('YYYY/MM/DD HH:mm')
+    chartEnd.value   = dayjs(end).format('YYYY/MM/DD HH:mm')
+    drag_offsetX = e.offsetX
+  }
+}
+
+const touchEnd = (e:Event) => {
+  drag = false
+  //console.log("touchEnd")
+  //console.log(e)
+}
+const mousewheel = (e:Event) => {
+  e.preventDefault();
+  //console.log("mousewheel")
+  let d = e.deltaY * 0.01;
+  row_index_start.value += d
+  row_index_end.value += d
+
+  //console.log(e)
+}
+
+</script>
