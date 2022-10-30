@@ -1,12 +1,6 @@
 <template>
 <splitpanes class="default-theme" horizontal style="height: 600px">
-  <pane 
-       v-for="{index, start, end} in pane_list_"
-              :index="index"
-              :start="start"
-              :end="end"
-
-  >
+  <pane >
   <g-gantt-chart
     v-bind:chart-start="chartStart"
     v-bind:chart-end="chartEnd"
@@ -21,10 +15,10 @@
     @mousedown="touchStart($event)"
     @mousemove="touchMove($event)"
     @mouseup="touchEnd($event)"
-    @wheel="mousewheel($event,index)"
+    @wheel="mousewheel($event,1)"
   >
    <g-gantt-row
-          v-for="{label, bars} in task_list_.slice(start, end)"
+          v-for="{label, bars} in task_list_.slice(v1_row_index_start, v1_row_index_end)"
               :label="label"
               highlight-on-hover
               :bars="bars"
@@ -33,6 +27,60 @@
 
   </g-gantt-chart>
 
+  </pane>
+  <pane>
+  <g-gantt-chart
+    v-bind:chart-start="chartStart"
+    v-bind:chart-end="chartEnd"
+    precision="day"
+    :row-height="40"
+    grid
+    width="100%"
+    bar-start="beginDate"
+    bar-end="endDate"
+    :date-format="format"
+    @click-bar="onClickBar($event.bar, $event.e, $event.datetime)"
+    @mousedown="touchStart($event)"
+    @mousemove="touchMove($event)"
+    @mouseup="touchEnd($event)"
+    @wheel="mousewheel($event,2)"
+  >
+   <g-gantt-row
+          v-for="{label, bars} in task_list_.slice(v2_row_index_start, v2_row_index_end)"
+              :label="label"
+              highlight-on-hover
+              :bars="bars"
+
+    />
+
+  </g-gantt-chart>
+  </pane>
+  <pane >
+  <g-gantt-chart
+    v-bind:chart-start="chartStart"
+    v-bind:chart-end="chartEnd"
+    precision="day"
+    :row-height="40"
+    grid
+    width="100%"
+    bar-start="beginDate"
+    bar-end="endDate"
+    :date-format="format"
+    @click-bar="onClickBar($event.bar, $event.e, $event.datetime)"
+    @mousedown="touchStart($event)"
+    @mousemove="touchMove($event)"
+    @mouseup="touchEnd($event)"
+    @wheel="mousewheel($event,3)"
+  >
+   <g-gantt-row
+          v-for="{label, bars} in task_list_.slice(v3_row_index_start, v3_row_index_end)"
+              :label="label"
+              highlight-on-hover
+              :bars="bars"
+
+    />
+
+  </g-gantt-chart>
   </pane>
 </splitpanes>
 </template>
@@ -53,8 +101,14 @@ const format = ref("YYYY/MM/DD HH:mm")
 const chartStart = ref("2021/06/10 12:00")  //error duplicate
 const chartEnd   = ref("2021/07/15 12:00")
 
+/*
+let _start = 4
+let _end   = 10
+const row_index_start = ref(_start)
+const row_index_end = ref(_end)
+*/
 let v1_start = 4
-let v1_end   = 8
+let v1_end   = 10
 const v1_row_index_start = ref(v1_start)
 const v1_row_index_end = ref(v1_end)
 
@@ -63,19 +117,10 @@ let v2_end   = 10
 const v2_row_index_start = ref(v2_start)
 const v2_row_index_end = ref(v2_end)
 
-let v3_start = 5
-let v3_end   = 11
+let v3_start = 4
+let v3_end   = 10
 const v3_row_index_start = ref(v3_start)
 const v3_row_index_end = ref(v3_end)
-
-let pane_list:{ [key: string]: any; }  = new Array()
-let pane_list_ = ref(pane_list)
-//pane_list.push({ start: v1_start, end: v1_start  })
-pane_list.push({ index: 0, start: 2, end: 5  })
-pane_list.push({ index: 1, start: 5, end: 8  })
-pane_list.push({ index: 2, start: 20, end: 25  })
-
-
 
 let task_list:{ [key: string]: any; }  = new Array()
 let task_list_ = ref(task_list)
@@ -117,16 +162,7 @@ const touchMove = (e:Event) => {
 const touchEnd = (e:Event) => {
   drag = false
 }
-
 const mousewheel = (e:Event, n:Int) => {
-  console.log(n);
-  e.preventDefault();
-  let d = e.deltaY * 0.02;
-  pane_list_.value[n]["start"] += d;
-  pane_list_.value[n]["end"] += d;
-}
-
-const _mousewheel = (e:Event, n:Int) => {
   console.log(n);
   e.preventDefault();
   let d = e.deltaY * 0.02;

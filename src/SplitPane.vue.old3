@@ -1,12 +1,6 @@
 <template>
 <splitpanes class="default-theme" horizontal style="height: 600px">
-  <pane 
-       v-for="{index, start, end} in pane_list_"
-              :index="index"
-              :start="start"
-              :end="end"
-
-  >
+  <pane >
   <g-gantt-chart
     v-bind:chart-start="chartStart"
     v-bind:chart-end="chartEnd"
@@ -21,10 +15,10 @@
     @mousedown="touchStart($event)"
     @mousemove="touchMove($event)"
     @mouseup="touchEnd($event)"
-    @wheel="mousewheel($event,index)"
+    @wheel="mousewheel($event)"
   >
    <g-gantt-row
-          v-for="{label, bars} in task_list_.slice(start, end)"
+          v-for="{label, bars} in task_list_.slice(row_index_start, row_index_end)"
               :label="label"
               highlight-on-hover
               :bars="bars"
@@ -33,6 +27,60 @@
 
   </g-gantt-chart>
 
+  </pane>
+  <pane>
+  <g-gantt-chart
+    v-bind:chart-start="chartStart"
+    v-bind:chart-end="chartEnd"
+    precision="day"
+    :row-height="40"
+    grid
+    width="100%"
+    bar-start="beginDate"
+    bar-end="endDate"
+    :date-format="format"
+    @click-bar="onClickBar($event.bar, $event.e, $event.datetime)"
+    @mousedown="touchStart($event)"
+    @mousemove="touchMove($event)"
+    @mouseup="touchEnd($event)"
+    @wheel="mousewheel($event)"
+  >
+   <g-gantt-row
+          v-for="{label, bars} in task_list_.slice(row_index_start, row_index_end)"
+              :label="label"
+              highlight-on-hover
+              :bars="bars"
+
+    />
+
+  </g-gantt-chart>
+  </pane>
+  <pane >
+  <g-gantt-chart
+    v-bind:chart-start="chartStart"
+    v-bind:chart-end="chartEnd"
+    precision="day"
+    :row-height="40"
+    grid
+    width="100%"
+    bar-start="beginDate"
+    bar-end="endDate"
+    :date-format="format"
+    @click-bar="onClickBar($event.bar, $event.e, $event.datetime)"
+    @mousedown="touchStart($event)"
+    @mousemove="touchMove($event)"
+    @mouseup="touchEnd($event)"
+    @wheel="mousewheel($event)"
+  >
+   <g-gantt-row
+          v-for="{label, bars} in task_list_.slice(row_index_start, row_index_end)"
+              :label="label"
+              highlight-on-hover
+              :bars="bars"
+
+    />
+
+  </g-gantt-chart>
   </pane>
 </splitpanes>
 </template>
@@ -53,29 +101,10 @@ const format = ref("YYYY/MM/DD HH:mm")
 const chartStart = ref("2021/06/10 12:00")  //error duplicate
 const chartEnd   = ref("2021/07/15 12:00")
 
-let v1_start = 4
-let v1_end   = 8
-const v1_row_index_start = ref(v1_start)
-const v1_row_index_end = ref(v1_end)
-
-let v2_start = 4
-let v2_end   = 10
-const v2_row_index_start = ref(v2_start)
-const v2_row_index_end = ref(v2_end)
-
-let v3_start = 5
-let v3_end   = 11
-const v3_row_index_start = ref(v3_start)
-const v3_row_index_end = ref(v3_end)
-
-let pane_list:{ [key: string]: any; }  = new Array()
-let pane_list_ = ref(pane_list)
-//pane_list.push({ start: v1_start, end: v1_start  })
-pane_list.push({ index: 0, start: 2, end: 5  })
-pane_list.push({ index: 1, start: 5, end: 8  })
-pane_list.push({ index: 2, start: 20, end: 25  })
-
-
+let _start = 4
+let _end   = 10
+const row_index_start = ref(_start)
+const row_index_end = ref(_end)
 
 let task_list:{ [key: string]: any; }  = new Array()
 let task_list_ = ref(task_list)
@@ -101,6 +130,8 @@ const touchStart = (e:Event) => {
   drag = true
   drag_offsetX = e.offsetX
 
+  //console.log("touchStart")
+  //console.log(e)
 }
 const touchMove = (e:Event) => {
   if (drag) {
@@ -116,30 +147,17 @@ const touchMove = (e:Event) => {
 
 const touchEnd = (e:Event) => {
   drag = false
+  //console.log("touchEnd")
+  //console.log(e)
 }
-
-const mousewheel = (e:Event, n:Int) => {
-  console.log(n);
+const mousewheel = (e:Event) => {
   e.preventDefault();
+  //console.log("mousewheel")
   let d = e.deltaY * 0.02;
-  pane_list_.value[n]["start"] += d;
-  pane_list_.value[n]["end"] += d;
-}
+  row_index_start.value += d
+  row_index_end.value += d
 
-const _mousewheel = (e:Event, n:Int) => {
-  console.log(n);
-  e.preventDefault();
-  let d = e.deltaY * 0.02;
-  if (n == 1 ) {
-    v1_row_index_start.value += d
-    v1_row_index_end.value += d
-  } else if (n == 2 ) {
-    v2_row_index_start.value += d
-    v2_row_index_end.value += d
-  } else if (n == 3 ) {
-    v3_row_index_start.value += d
-    v3_row_index_end.value += d
-  }
+  //console.log(e)
 }
 
 </script>
