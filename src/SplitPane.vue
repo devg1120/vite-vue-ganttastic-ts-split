@@ -1,5 +1,8 @@
 <template>
-<splitpanes class="default-theme" horizontal style="height: 600px">
+<splitpanes class="default-theme" horizontal style="height: 600px"
+  @resize="pane_resize('resize', $event)"
+  @resized="pane_resized('resized', $event)"
+  >
   <pane 
        v-for="{index, start, end} in pane_list_"
               :index="index"
@@ -11,7 +14,7 @@
     v-bind:chart-start="chartStart"
     v-bind:chart-end="chartEnd"
     precision="day"
-    :row-height="40"
+    :row-height="20"
     grid
     width="100%"
     bar-start="beginDate"
@@ -53,6 +56,7 @@ const format = ref("YYYY/MM/DD HH:mm")
 const chartStart = ref("2021/06/10 12:00")  //error duplicate
 const chartEnd   = ref("2021/07/15 12:00")
 
+/*
 let v1_start = 4
 let v1_end   = 8
 const v1_row_index_start = ref(v1_start)
@@ -67,13 +71,14 @@ let v3_start = 5
 let v3_end   = 11
 const v3_row_index_start = ref(v3_start)
 const v3_row_index_end = ref(v3_end)
+*/
 
 let pane_list:{ [key: string]: any; }  = new Array()
 let pane_list_ = ref(pane_list)
 //pane_list.push({ start: v1_start, end: v1_start  })
-pane_list.push({ index: 0, start: 2, end: 5  })
-pane_list.push({ index: 1, start: 5, end: 8  })
-pane_list.push({ index: 2, start: 20, end: 25  })
+pane_list.push({ index: 0, start: 2, end: 15  })
+pane_list.push({ index: 1, start: 5, end: 18  })
+pane_list.push({ index: 2, start: 20, end: 35  })
 
 
 
@@ -96,6 +101,14 @@ const shiftDown = () => {
 }
 let drag:boolean = false;
 let drag_offsetX:int = 0;
+
+const pane_resize = (s:string,e:Event) => {
+   console.log("resize")
+}
+
+const pane_resized = (s:string,e:Event) => {
+   console.log("resized")
+}
 
 const touchStart = (e:Event) => {
   drag = true
