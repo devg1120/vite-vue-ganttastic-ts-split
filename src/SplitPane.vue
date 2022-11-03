@@ -1,7 +1,7 @@
 <template>
-<splitpanes class="default-theme" horizontal style="height: 600px"
-  @resize="pane_resize('resize', $event)"
-  @resized="pane_resized('resized', $event)"
+<splitpanes class="default-theme" :horizontal="splittype_is_horizontal"  style="height: 600px"
+  @resize="pane_resize(splittype, $event)"
+  @resized="pane_resized(splittipe, $event)"
   >
   <pane 
        v-for="{index, start, end} in pane_list_"
@@ -55,30 +55,20 @@ import { objData } from "./gendata/jsondata.js"
 const format = ref("YYYY/MM/DD HH:mm")
 const chartStart = ref("2021/06/10 12:00")  //error duplicate
 const chartEnd   = ref("2021/07/15 12:00")
-
-/*
-let v1_start = 4
-let v1_end   = 8
-const v1_row_index_start = ref(v1_start)
-const v1_row_index_end = ref(v1_end)
-
-let v2_start = 4
-let v2_end   = 10
-const v2_row_index_start = ref(v2_start)
-const v2_row_index_end = ref(v2_end)
-
-let v3_start = 5
-let v3_end   = 11
-const v3_row_index_start = ref(v3_start)
-const v3_row_index_end = ref(v3_end)
-*/
-
+const horizontal = true
+const splittype = "horizontal"
+const splittype_is_horizontal = ()=> {
+     return splittype == "horizontal"
+}
 let pane_list:{ [key: string]: any; }  = new Array()
 let pane_list_ = ref(pane_list)
 //pane_list.push({ start: v1_start, end: v1_start  })
 pane_list.push({ index: 0, start: 2, end: 15  })
 pane_list.push({ index: 1, start: 5, end: 18  })
 pane_list.push({ index: 2, start: 20, end: 35  })
+//pane_list.push({ index: 0, start: 2, end: 5  })
+//pane_list.push({ index: 1, start: 5, end: 8  })
+//pane_list.push({ index: 2, start: 20, end: 23  })
 
 
 
@@ -103,11 +93,11 @@ let drag:boolean = false;
 let drag_offsetX:int = 0;
 
 const pane_resize = (s:string,e:Event) => {
-   console.log("resize")
+   console.log("resize:", s)
 }
 
 const pane_resized = (s:string,e:Event) => {
-   console.log("resized")
+   console.log("resized:", s)
 }
 
 const touchStart = (e:Event) => {
