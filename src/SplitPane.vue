@@ -1,7 +1,7 @@
 <template>
-<splitpanes class="default-theme" :horizontal="splittype_is_horizontal"  style="height: 600px"
+<splitpanes class="default-theme" :horizontal="splittype_is_horizontal()"  style="height: 600px"
   @resize="pane_resize(splittype, $event)"
-  @resized="pane_resized(splittipe, $event)"
+  @resized="pane_resized(splittype, $event)"
   >
   <pane 
        v-for="{index, start, end} in pane_list_"
@@ -55,7 +55,7 @@ import { objData } from "./gendata/jsondata.js"
 const format = ref("YYYY/MM/DD HH:mm")
 const chartStart = ref("2021/06/10 12:00")  //error duplicate
 const chartEnd   = ref("2021/07/15 12:00")
-const horizontal = true
+//const horizontal = true
 const splittype = "horizontal"
 const splittype_is_horizontal = ()=> {
      return splittype == "horizontal"
