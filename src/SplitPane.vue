@@ -10,12 +10,22 @@
                 :end="end"
 
     >
-     <splitpanes :push-other-panes="false">
+    
+     <splitpanes :push-other-panes="false"
+      @resize="v_pane_resize($event[0].size)"
+      @resized="v_pane_resized($event[0].size)"
+     >
+     
+     <!--
+     <splitpanes :push-other-panes="false"
+     >
+     -->
      <pane
-         v-for="{h_index, chartStart, chartEnd} in h_pane_list_"
+         v-for="{h_index, chartStart, chartEnd, size} in h_pane_list_"
                 :h_index="h_index"
                 :chartStart="chartStart"
                 :chartEnd="chartEnd"
+		:size="size"
      >
        <g-gantt-chart
          :h_index="h_index"
@@ -72,8 +82,8 @@ const splittype_is_horizontal = ()=> {
 
 let h_pane_list:{ [key: string]: any; }  = new Array()
 let h_pane_list_ = ref(h_pane_list)
-h_pane_list.push({ h_index: 0, chartStart: "2021/06/10 12:00", chartEnd: "2021/06/21 12:00"  })
-h_pane_list.push({ h_index: 1, chartStart: "2021/06/25 12:00", chartEnd: "2021/07/10 12:00"  })
+h_pane_list.push({ h_index: 0, chartStart: "2021/06/10 12:00", chartEnd: "2021/06/21 12:00"  , size : 60})
+h_pane_list.push({ h_index: 1, chartStart: "2021/06/25 12:00", chartEnd: "2021/07/10 12:00"  , size : 40})
 
 let v_pane_list:{ [key: string]: any; }  = new Array()
 let v_pane_list_ = ref(v_pane_list)
@@ -110,6 +120,17 @@ const pane_resized = (s:string,e:Event) => {
    console.log("resized:", s)
 }
 
+const v_pane_resize = ( s:Int) => {
+   console.log("resize:", s)
+   h_pane_list_.value[0]["size"] = s
+   h_pane_list_.value[1]["size"] = 100- s
+}
+
+const v_pane_resized = ( s:Int) => {
+   console.log("resized:", s)
+   h_pane_list_.value[0]["size"] = s
+   h_pane_list_.value[1]["size"] = 100- s
+}
 const touchStart = (e:Event) => {
   drag = true
   drag_offsetX = e.offsetX
