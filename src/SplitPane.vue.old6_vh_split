@@ -4,21 +4,15 @@
   @resized="pane_resized(splittype, $event)"
 >
     <pane 
-         v-for="{index, start, end} in v_pane_list_"
+         v-for="{index, start, end} in pane_list_"
                 :index="index"
                 :start="start"
                 :end="end"
 
     >
      <splitpanes :push-other-panes="false">
-     <pane
-         v-for="{h_index, chartStart, chartEnd} in h_pane_list_"
-                :h_index="h_index"
-                :chartStart="chartStart"
-                :chartEnd="chartEnd"
-     >
+     <pane>
        <g-gantt-chart
-         :h_index="h_index"
          v-bind:chart-start="chartStart"
          v-bind:chart-end="chartEnd"
          precision="day"
@@ -30,7 +24,33 @@
          :date-format="format"
          @click-bar="onClickBar($event.bar, $event.e, $event.datetime)"
          @mousedown="touchStart($event)"
-         @mousemove="touchMove($event,h_index)"
+         @mousemove="touchMove($event)"
+         @mouseup="touchEnd($event)"
+         @wheel="mousewheel($event,index)"
+       >
+           <g-gantt-row
+                  v-for="{label, bars} in task_list_.slice(start, end)"
+                      :label="label"
+                      highlight-on-hover
+                      :bars="bars"
+
+            />
+       </g-gantt-chart>
+      </pane>
+      <pane>
+       <g-gantt-chart
+         v-bind:chart-start="chartStart"
+         v-bind:chart-end="chartEnd"
+         precision="day"
+         :row-height="20"
+         grid
+         width="100%"
+         bar-start="beginDate"
+         bar-end="endDate"
+         :date-format="format"
+         @click-bar="onClickBar($event.bar, $event.e, $event.datetime)"
+         @mousedown="touchStart($event)"
+         @mousemove="touchMove($event)"
          @mouseup="touchEnd($event)"
          @wheel="mousewheel($event,index)"
        >
@@ -61,25 +81,23 @@ import dayjs from 'dayjs';
 import { objData } from "./gendata/jsondata.js"
 
 const format = ref("YYYY/MM/DD HH:mm")
-//const chartStart = ref("2021/06/10 12:00")  //error duplicate
-//const chartEnd   = ref("2021/07/15 12:00")
-
+const chartStart = ref("2021/06/10 12:00")  //error duplicate
+const chartEnd   = ref("2021/07/15 12:00")
 //const horizontal = true
 const splittype = "horizontal"
 const splittype_is_horizontal = ()=> {
      return splittype == "horizontal"
 }
+let pane_list:{ [key: string]: any; }  = new Array()
+let pane_list_ = ref(pane_list)
+//pane_list.push({ start: v1_start, end: v1_start  })
+pane_list.push({ index: 0, start: 2, end: 15  })
+pane_list.push({ index: 1, start: 5, end: 18  })
+pane_list.push({ index: 2, start: 20, end: 35  })
+//pane_list.push({ index: 0, start: 2, end: 5  })
+//pane_list.push({ index: 1, start: 5, end: 8  })
+//pane_list.push({ index: 2, start: 20, end: 23  })
 
-let h_pane_list:{ [key: string]: any; }  = new Array()
-let h_pane_list_ = ref(h_pane_list)
-h_pane_list.push({ h_index: 0, chartStart: "2021/06/10 12:00", chartEnd: "2021/06/21 12:00"  })
-h_pane_list.push({ h_index: 1, chartStart: "2021/06/25 12:00", chartEnd: "2021/07/10 12:00"  })
-
-let v_pane_list:{ [key: string]: any; }  = new Array()
-let v_pane_list_ = ref(v_pane_list)
-v_pane_list.push({ index: 0, start: 2,  end: 15  })
-v_pane_list.push({ index: 1, start: 5,  end: 18  })
-v_pane_list.push({ index: 2, start: 20, end: 35  })
 
 
 let task_list:{ [key: string]: any; }  = new Array()
@@ -115,20 +133,14 @@ const touchStart = (e:Event) => {
   drag_offsetX = e.offsetX
 
 }
-const touchMove = (e:Event, n:Int) => {
+const touchMove = (e:Event) => {
   if (drag) {
-console.log("h_index:" + n)
     //let z = e.offsetX - drag_offsetX 
     let z = (drag_offsetX  - e.offsetX) 
-    //const start = dayjs(chartStart.value ).add(z,"h")
-    //const end   = dayjs(chartEnd.value ).add(z,"h")
-    //chartStart.value = dayjs(start).format('YYYY/MM/DD HH:mm')
-    //chartEnd.value   = dayjs(end).format('YYYY/MM/DD HH:mm')
-    const start = dayjs(h_pane_list_.value[n]["chartStart"]).add(z,"h")
-    const end   = dayjs(h_pane_list_.value[n]["chartEnd"]).add(z,"h")
-    h_pane_list_.value[n]["chartStart"] = dayjs(start).format('YYYY/MM/DD HH:mm')
-    h_pane_list_.value[n]["chartEnd"]   = dayjs(end).format('YYYY/MM/DD HH:mm')
-
+    const start = dayjs(chartStart.value ).add(z,"h")
+    const end   = dayjs(chartEnd.value ).add(z,"h")
+    chartStart.value = dayjs(start).format('YYYY/MM/DD HH:mm')
+    chartEnd.value   = dayjs(end).format('YYYY/MM/DD HH:mm')
     drag_offsetX = e.offsetX
   }
 }
@@ -141,8 +153,8 @@ const mousewheel = (e:Event, n:Int) => {
   console.log(n);
   e.preventDefault();
   let d = e.deltaY * 0.02;
-  v_pane_list_.value[n]["start"] += d;
-  v_pane_list_.value[n]["end"] += d;
+  pane_list_.value[n]["start"] += d;
+  pane_list_.value[n]["end"] += d;
 }
 
 const _mousewheel = (e:Event, n:Int) => {
