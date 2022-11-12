@@ -69,6 +69,7 @@ import GGanttChart from "./components/GGanttChart.vue"
 import { GanttBarObject } from "./models/models"
 import dayjs from 'dayjs';
 import { objData } from "./gendata/jsondata.js"
+import { useKeypress } from 'vue3-keypress'
 
 const format = ref("YYYY/MM/DD HH:mm")
 //const chartStart = ref("2021/06/10 12:00")  //error duplicate
@@ -181,6 +182,45 @@ const _mousewheel = (e:Event, n:Int) => {
     v3_row_index_end.value += d
   }
 }
+
+/*
+const keyUp = (e:Event, n:Int) => {
+  console.log("keyUp");
+  e.preventDefault();
+  let d = 1
+  v_pane_list_.value[n]["start"] += d;
+  v_pane_list_.value[n]["end"] += d;
+}
+const keyDown = (e:Event, n:Int) => {
+  console.log("keyDown");
+  e.preventDefault();
+  let d = 1
+  v_pane_list_.value[n]["start"] -= d;
+  v_pane_list_.value[n]["end"] -= d;
+}
+*/
+    const keyDown = ({ keyCode }) => {
+        // doSomething
+	console.log("keydown", keyCode)
+    }
+    const keyUp = ({ keyCode }) => {
+        // doSomething
+	console.log("keyup", keyCode)
+    }
+
+    useKeypress({
+        keyEvent: "keydown",
+        keyBinds: [
+          {
+            keyCode: "down", // or keyCode as integer, e.g. 40
+            success: keyDown,
+          },
+          {
+            keyCode: "up", // or keyCode as integer, e.g. 40
+            success: keyUp,
+          },
+        ]
+    })
 
 </script>
 

@@ -8,11 +8,13 @@ specifiers:
   vite: ^3.1.0
   vue: ^3.2.37
   vue-tsc: ^0.40.4
+  vue3-keypress: ^4.0.1
 
 dependencies:
   dayjs: 1.11.5
   splitpanes: 3.1.1
   vue: 3.2.39
+  vue3-keypress: 4.0.1
 
 devDependencies:
   '@vitejs/plugin-vue': 3.1.0_vite@3.1.0+vue@3.2.39
@@ -563,6 +565,10 @@ packages:
       '@vue/runtime-dom': 3.2.39
       '@vue/server-renderer': 3.2.39_vue@3.2.39
       '@vue/shared': 3.2.39
+
+  /vue3-keypress/4.0.1:
+    resolution: {integrity: sha512-oKxLpVsQq1iosuwi38fbH+K2NL2HqbFT8U7yE1fzxcUB0Mup1vS7OcnNMqkgv+FHFJTNvlYAOwLctVK/ahz6Ng==}
+    dev: false
 
   /yallist/4.0.0:
     resolution: {integrity: sha512-3wdGidZyq5PB084XLES5TpOSRA3wjXAlIWMhum2kRcv/41Sn2emQ0dycQW4uZXLejwKvg6EsvbdlVL+FYEct7A==}
